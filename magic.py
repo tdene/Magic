@@ -179,9 +179,9 @@ def update():
     if server and cliver and server!=cliver:
         print("Updating script.\n")
         dirname=os.path.dirname(os.path.realpath(sys.argv[0]))
-        subprocess.call(["wget",RAWGITURL+"magic.py","-O",dirname+"magic.py"])
-        subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",dirname+"analyze.sh"])
-        subprocess.call(["wget",RAWGITURL+"correct","-O",dirname+"correct"])
+        subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.join(dirname,"magic.py")])
+        subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",os.path.join(dirname,"analyze.sh")])
+        subprocess.call(["wget",RAWGITURL+"correct","-O",os.path.join(dirname,"correct")])
         subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
         print("Restarting script.\n")
         os.execl(sys.executable,sys.executable,*sys.argv)
