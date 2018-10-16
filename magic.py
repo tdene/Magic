@@ -7,6 +7,9 @@ import copy
 
 RAWGITURL="https://raw.githubusercontent.com/tdene/Magic/master/"
 
+# "installation" script:
+# wget -O - https://raw.githubusercontent.com/tdene/Magic/master/magic.py > magic.py && chmod u+x magic.py && ./magic.py
+
 INFILE=None
 OUTFILE=None
 NOUPDATE=None
@@ -169,7 +172,6 @@ def update():
         cliver=1
     if server and cliver and server!=cliver:
         print("Updating script.\n")
-        print(os.path.realpath(sys.argv[0]))
         subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.realpath(sys.argv[0])])
         subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
         print("Restarting script.\n")
