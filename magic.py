@@ -15,6 +15,7 @@ NOSTRCON=None
 TS=str(int(time.time()))+'.451' #personal flair
 
 VDD=None
+
 GND=None
 
 _MINDIFCON=10
