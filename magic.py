@@ -166,7 +166,7 @@ def update():
     server=None; cliver=None;
 
     try:
-        server=subprocess.check_output(["wget","-qO","-",RAWGITURL+"version.txt"])
+        server=subprocess.Popen(["wget","-qO","-",RAWGITURL+"version.txt"],stdout=subprocess.PIPE).communicate()[0]
     except:
         print("\"Distribution server\" is offline.")
         return
@@ -178,9 +178,10 @@ def update():
         cliver=1
     if server and cliver and server!=cliver:
         print("Updating script.\n")
-        subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.realpath(sys.argv[0])])
-        subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",os.path.realpath(sys.argv[0])])
-        subprocess.call(["wget",RAWGITURL+"correct","-O",os.path.realpath(sys.argv[0])])
+        dirname=os.path.dirname(os.path.realpath(sys.argv[0]))
+        subprocess.call(["wget",RAWGITURL+"magic.py","-O",dirname+"magic.py"])
+        subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",dirname+"analyze.sh"])
+        subprocess.call(["wget",RAWGITURL+"correct","-O",dirname+"correct"])
         subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
         print("Restarting script.\n")
         os.execl(sys.executable,sys.executable,*sys.argv)
