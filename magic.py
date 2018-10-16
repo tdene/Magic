@@ -155,7 +155,7 @@ def processArgs():
 def update():
     flag=False
     server=None; cliver=None;
-    
+
     try:
         server=subprocess.check_output(["wget","-qO","-",RAWGITURL+"version.txt"])
     except:
@@ -165,13 +165,14 @@ def update():
         with open(os.path.expanduser('~/.teo'),'r') as f:
             cliver=f.read()
     except:
-        print("Cannot find local version number.")
+        print("Cannot find local version number.\n")
         cliver=1
     if server and cliver and server!=cliver:
-        print("Updating script")
+        print("Updating script.\n")
+        print(os.path.realpath(sys.argv[0]))
         subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.realpath(sys.argv[0])])
         subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
-        print("Restarting script")
+        print("Restarting script.\n")
         os.execl(sys.executable,sys.executable,*sys.argv)
         sys.exit(0)
 
@@ -261,7 +262,6 @@ def stretch():
         def restrict(x):
             for i in dic['restrictedArea']:
                 if z2n(dr)*(x-i[dr][1])<=0 and z2n(dr)*(x-i[1-dr][1])>0:
-#                if x>=i[0][1] and x<=i[1][1]:
                     return True
             return False
 
