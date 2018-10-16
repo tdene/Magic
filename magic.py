@@ -5,6 +5,8 @@ import time
 import subprocess
 import copy
 
+RAWGITURL="https://raw.githubusercontent.com/tdene/Magic/master/"
+
 INFILE=None
 OUTFILE=None
 NOUPDATE=None
@@ -15,7 +17,6 @@ NOSTRCON=None
 TS=str(int(time.time()))+'.451' #personal flair
 
 VDD=None
-
 GND=None
 
 _MINDIFCON=10
@@ -156,7 +157,7 @@ def update():
     server=None; cliver=None;
     
     try:
-        server=subprocess.check_output(["wget","-qO","-","74.195.235.187/version.txt"])
+        server=subprocess.check_output(["wget","-qO","-",RAWGITURL+"version.txt"])
     except:
         print("\"Distribution server\" is offline.")
         return
@@ -167,8 +168,10 @@ def update():
         print("Cannot find local version number.")
         cliver=1
     if server and cliver and server!=cliver:
-        subprocess.call(["wget","74.195.235.187/magic.py","-O",os.path.realpath(sys.argv[0])])
-        subprocess.call(["wget","74.195.235.187/version.txt","-O",os.path.expanduser("~/.teo")])
+        print("Updating script")
+        subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.realpath(sys.argv[0])])
+        subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
+        print("Restarting script")
         os.execl(sys.executable,sys.executable,*sys.argv)
         sys.exit(0)
 
