@@ -15,6 +15,7 @@ OUTFILE=None
 NOUPDATE=None
 STRETCH=None
 FLIP=None
+ANALYZE=None
 NOWELL=None
 NOSTRCON=None
 TS=str(int(time.time()))+'.451' #personal flair
@@ -100,7 +101,7 @@ def _stretch(dic,line,dr,dl,le,lcont=[]):
                 b[dr][1]+=f(dr,dl)
 
 def processArgs():
-    global NOUPDATE, NOWELL, NOSTRCON, STRETCH, FLIP, INFILE, OUTFILE
+    global NOUPDATE, NOWELL, NOSTRCON, STRETCH, FLIP, INFILE, OUTFILE, ANALYZE
     for a in range(len(sys.argv)):
         b=sys.argv[a]
         if a==0:
@@ -108,16 +109,19 @@ def processArgs():
         if a==1 and b in ['-h','-help','h','help']:
             print('Usage: magic.py [OPTIONS] <src> <dest>')
             print('OPTIONS:')
-            print('--noupdate\t\tDo not attempt to update script before running.')
-            print('-flip\t\t\tSwap the design\'s PMOS/NMOS logic.')
-            print('-nowell\t\t\tRemove n-well (the n-well may otherwise cause errors)\n')
+            print('--noupdate\t\tDo not attempt to update script to most current version.')
+            print('-flip\t\t\tSwaps the design\'s PMOS/NMOS logic.')
+            print('-nowell\t\t\tRemoves all n-wells (-flip will not work if multiple n-wells are present)\n')
             print('-stretch <n/p> <initial size:final size> <p/n> <initial size:final size>')
             print('\t\t\tAtempts to stretch all transistors in the circuit by the given integer ratio.')
             print('\t\t\tRequires user to specify both n and p stretch ratios, even if one of them is 1:1.')
-            print('\t\t\tMay not work as desired.\n')
+            print('\t\t\tSample usage: ./magic.py -stretch n 10:20 p 2:1 src.mag dest.mag\n')
             print('-nostretchcontact\tOptional argument to be used with the -stretch script.')
             print('\t\t\tKeeps diffusion contacts the same size, and does not stretch them.')
+            print('\t\t\tNot really supported; this argument has a high chance of producing errors.\n')
+            print('-analyze\t\tRuns analyze.sh on all subdirectories.\n')
             print('-help\t\t\tPrints this page.')
+            sys.exit(0)
         if a>len(sys.argv)-3:
             tmp=None
             x=2-(len(sys.argv)-a)
@@ -141,6 +145,8 @@ def processArgs():
             FLIP=True
         if b=='-nowell':
             NOWELL=True
+        if b=='-analyze':
+            ANALYZE=True
         if b=='-stretch':
             try:
                 assert sys.argv[a+1] in ['p','n']
@@ -304,7 +310,15 @@ def stretch():
         dic['restrictedArea'].append(copy.deepcopy(a))
     del dic['restrictedArea']
     writeMagic(OUTFILE,dic)
-                
+
+def analyze():
+    codepath=os.path.dirname(os.path.realpath(sys.argv[0]))
+    os.chdir(codepath)
+    subdirs=[x for x in os.listdir(codepath) 
+                    if os.path.isdir(os.path.join(codepath,x))]
+    for x in subdirs:
+        if x!='output':
+            subprocess.call([os.path.join(codepath,'analyze.sh'),x])
 if __name__ == '__main__':
     processArgs()
     if not NOUPDATE:
@@ -313,3 +327,5 @@ if __name__ == '__main__':
         flip()
     if STRETCH:
         stretch()
+    if ANALYZE:
+        analyze()
