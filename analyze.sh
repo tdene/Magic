@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+cd $1
+
 cd magic
 echo "no" | ext4mag inv.mag
 cd ../sue
