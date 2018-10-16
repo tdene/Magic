@@ -180,7 +180,9 @@ def update():
         print("Updating script.\n")
         dirname=os.path.dirname(os.path.realpath(sys.argv[0]))
         subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.join(dirname,"magic.py")])
+        subprocess.call(["chmod","u+x","magic.py"])
         subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",os.path.join(dirname,"analyze.sh")])
+        subprocess.call(["chmod","u+x","analyze.sh"])
         subprocess.call(["wget",RAWGITURL+"correct","-O",os.path.join(dirname,"correct")])
         subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
         print("Restarting script.\n")
@@ -320,7 +322,7 @@ def analyze():
     subdirs=[x for x in os.listdir(codepath) 
                     if os.path.isdir(os.path.join(codepath,x))]
     for x in subdirs:
-        if x!='output':
+        if x not in ['output','calibre']:
             subprocess.call([os.path.join(codepath,'analyze.sh'),x])
 if __name__ == '__main__':
     processArgs()

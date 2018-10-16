@@ -5,7 +5,7 @@ cd magic
 echo "no" | ext4mag inv.mag
 cd ../sue
 echo "set NETLIST(no_header) 1" > .suerc
-sue inv.sue -CMD netlist -CMD exit -ICONIFY 1
+sue $1.sue -CMD netlist -CMD exit -ICONIFY 1
 cd ../lvs
 printf "*lvsRulesFile: /classes/ecen4303F18/calibre/calibreLVS_scn3me_subm.rul\n">runset.calibre.lvs
 printf "*lvsRunDir: .\n">>runset.calibre.lvs
@@ -30,18 +30,18 @@ printf "*cmnFDIUseLayerMap: 1">>runset.calibre.lvs
 ./run_calibre.sh
 
 cd ..
-if grep -Fxq -f correct ./lvs/inv.lvs.report
+if grep -Fxq -f ../correct ./lvs/$1.lvs.report
 then printf "\nSimulation results CORRECT!\n"
 else
 	printf "\nERROR in LVS!\n"
 	exit 0
 fi
 
-if [ ! -d "output" ]
-then mkdir output
+if [ ! -d "../output" ]
+then mkdir ../output
 fi
 
-cd output
-cp ../lvs/inv.lvs.report .
-echo "y" | pplot -k layout.ps -l allText -d 10 ../magic/inv.cif
+cd ../output
+cp ../$1/lvs/$1.lvs.report .
+echo "y" | pplot -k $1.ps -l allText -d 10 ../$1/magic/$1.cif
 printf "\n"
