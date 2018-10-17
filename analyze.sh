@@ -2,7 +2,7 @@
 cd $1
 
 cd magic
-echo "no" | ext4mag inv.mag
+echo "no" | ext4mag $1.mag
 cd ../sue
 echo "set NETLIST(no_header) 1" > .suerc
 sue $1.sue -CMD netlist -CMD exit -ICONIFY 1
