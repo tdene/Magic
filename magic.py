@@ -16,14 +16,19 @@ NOUPDATE=None
 STRETCH=None
 FLIP=None
 ANALYZE=None
+IRSIM=None
 NOWELL=None
 NOSTRCON=None
+JUSTTHIS=None
 TS=str(int(time.time()))+'.451' #personal flair
 
 VDD=None
 GND=None
 
 _MINDIFCON=10
+
+SCRIPTDIR=os.path.dirname(os.path.realpath(sys.argv[0]))
+HOMEDIR=None
 
 def _flatlist(l):
     ret=[]
@@ -101,7 +106,8 @@ def _stretch(dic,line,dr,dl,le,lcont=[]):
                 b[dr][1]+=f(dr,dl)
 
 def processArgs():
-    global NOUPDATE, NOWELL, NOSTRCON, STRETCH, FLIP, INFILE, OUTFILE, ANALYZE
+    global NOUPDATE, NOWELL, NOSTRCON, STRETCH, FLIP, INFILE, OUTFILE, ANALYZE, IRSIM, JUSTTHIS
+    reqinputs=0
     for a in range(len(sys.argv)):
         b=sys.argv[a]
         if a==0:
@@ -120,9 +126,44 @@ def processArgs():
             print('\t\t\tKeeps diffusion contacts the same size, and does not stretch them.')
             print('\t\t\tNot really supported; this argument has a high chance of producing errors.\n')
             print('-analyze\t\tRuns analyze.sh on all subdirectories.\n')
+            print('\t\t\t-justThis\tOnly runs analyze.sh on the input file.\n')
+            print('-irsim\t\t\tPerforms and prints an IRSIM analysis.')
             print('-help\t\t\tPrints this page.')
             sys.exit(0)
-        if a>len(sys.argv)-3:
+        if b=='--noupdate':
+            NOUPDATE=True
+        if b=='-flip':
+            FLIP=True
+            reqinputs=2
+        if b=='-nowell':
+            NOWELL=True
+
+        if b=='-stretch':
+            try:
+                assert sys.argv[a+1] in ['p','n']
+                assert sys.argv[a+3] in ['p','n']
+                STRETCH={
+                 sys.argv[a+1]:[int(x) for x in sys.argv[a+2].split(':')],
+                 sys.argv[a+3]:[int(x) for x in sys.argv[a+4].split(':')]
+                }
+            except:
+                print('Malformed -stretch arguments')
+                sys.exit(1)
+            reqinputs=2
+        if b=='-nostretchcontact':
+            NOSTRCON=True
+
+        if b=='-analyze':
+            ANALYZE=True
+        if b=='-justThis' and ANALYZE:
+            if not reqinputs:
+                reqinputs=1
+
+        if b=='-irsim':
+            IRSIM=True
+            reqinputs=1
+
+        if reqinputs==2 and a>len(sys.argv)-3:
             tmp=None
             x=2-(len(sys.argv)-a)
             if((os.path.isfile(b) or x)):
@@ -135,31 +176,75 @@ def processArgs():
                 tmp=b+'.mag'
             if not tmp:
                 print('The last two arguments must be valid file names.')
-            if x:
-                OUTFILE=tmp
-            else:
-                INFILE=tmp
-        if b=='--noupdate':
-            NOUPDATE=True
-        if b=='-flip':
-            FLIP=True
-        if b=='-nowell':
-            NOWELL=True
-        if b=='-analyze':
-            ANALYZE=True
-        if b=='-stretch':
-            try:
-                assert sys.argv[a+1] in ['p','n']
-                assert sys.argv[a+3] in ['p','n']
-                STRETCH={
-                 sys.argv[a+1]:[int(x) for x in sys.argv[a+2].split(':')],
-                 sys.argv[a+3]:[int(x) for x in sys.argv[a+4].split(':')]
-                }
-            except:
-                print('Malformed -stretch arguments')
                 sys.exit(1)
-        if b=='-nostretchcontact':
-            NOSTRCON=True
+            if x:
+                OUTFILE=os.path.abspath(tmp)
+            else:
+                INFILE=os.path.abspath(tmp)
+        if reqinputs==1 and a>len(sys.argv)-2:
+            tmp=b
+            if(not os.path.isfile(tmp)):
+                tmp=b+'.mag'
+                if(not os.path.isfile(tmp)):
+                    print('The last argument must be a valid file name.')
+                    sys.exit(1)
+            INFILE=os.path.abspath(tmp)
+
+def findHome():
+    global HOMEDIR
+    # Helper
+    getSubdirs=lambda d: [x for x in os.listdir(d) if os.path.isdir(os.path.join(d,x))]
+    # Check if a dir is "HOMEDIR"
+    def isHome(d):
+        # Get all subdirectories
+        getSubdirs(d)
+        # Get all subdirectories of subdirectories
+        for x in getSubdirs(os.path.join(d,d[0])):
+            # If one of them is 'magic' or 'sue', we're golden
+            if x in ['magic','lvs','sue']:
+                return True
+        return False
+
+    # Check SCRIPTDIR
+    if isHome(SCRIPTDIR):
+        HOMEDIR=SCRIPTDIR
+        return
+
+    # Check cwd
+    if isHome(os.getcwd()):
+        HOMEDIR=os.getcwd()
+        return
+
+    # Check one folder down from SCRIPTDIR
+    for x in getSubdirs(SCRIPTDIR):
+        x=os.path.join(SCRIPTDIR,x)
+        if isHome(x):
+            HOMEDIR=x
+            return
+
+    # Check one folder down from cwd
+    for x in getSubdirs(os.getcwd()):
+        x=os.path.join(os.getcwd(),x)
+        if isHome(x):
+            HOMEDIR=x
+            return
+
+    # Check one folder up from cwd
+    x=os.path.abspath(os.path.join(os.getcwd(),'..'))
+    if isHome(x):
+        HOMEDIR=x
+        return
+
+    # Check two folders up from cwd
+    x=os.path.abspath(os.path.join(os.getcwd(),'..'))
+    if isHome(x):
+        HOMEDIR=x
+        return
+
+    # Give up
+    print('Folder structure not recognized. Scripts that rely on multiple tools will fail.')
+    HOMEDIR=os.getcwd()
+
 
 def update():
     flag=False
@@ -178,12 +263,11 @@ def update():
         cliver=1
     if server and cliver and server!=cliver:
         print("Updating script.\n")
-        dirname=os.path.dirname(os.path.realpath(sys.argv[0]))
-        subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.join(dirname,"magic.py")])
+        subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.join(SCRIPTDIR,"magic.py")])
         subprocess.call(["chmod","u+x","magic.py"])
-        subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",os.path.join(dirname,"analyze.sh")])
+        subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",os.path.join(SCRIPTDIR,"analyze.sh")])
         subprocess.call(["chmod","u+x","analyze.sh"])
-        subprocess.call(["wget",RAWGITURL+"correct","-O",os.path.join(dirname,"correct")])
+        subprocess.call(["wget",RAWGITURL+"correct","-O",os.path.join(SCRIPTDIR,"correct")])
         subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
         print("Restarting script.\n")
         os.execl(sys.executable,sys.executable,*sys.argv)
@@ -315,17 +399,108 @@ def stretch():
         dic['restrictedArea'].append(copy.deepcopy(a))
     del dic['restrictedArea']
     writeMagic(OUTFILE,dic)
+    global INFILE; INFILE=OUTFILE
 
 def analyze():
-    codepath=os.path.dirname(os.path.realpath(sys.argv[0]))
-    os.chdir(codepath)
-    subdirs=[x for x in os.listdir(codepath) 
-                    if os.path.isdir(os.path.join(codepath,x))]
+    os.chdir(SCRIPTDIR)
+    subdirs=[x for x in os.listdir(SCRIPTDIR)
+                    if os.path.isdir(os.path.join(SCRIPTDIR,x))]
+    if JUSTTHIS:
+        if OUTFILE:
+            subdirs=[OUTFILE]
+        elif INFILE:
+            subdirs=[INFILE]
+        else:
+            print('This error should be unreachable')
+            sys.exit(1)
+        if subdirs[0][-4:]=='.mag':
+            subdirs[0]=subdirs[0][:-4]
     for x in subdirs:
         if x not in ['output','calibre']:
             subprocess.call([os.path.join(codepath,'analyze.sh'),x])
+
+def irsim():
+    # Copy the global INFILE
+    inf=INFILE
+
+    # If we get a mag file input
+    if inf[-4:]=='.mag':
+        # Save cwd
+        tmp=os.getcwd()
+        # Navigate to the file's folder
+        os.chdir(os.path.dirname(inf))
+        # Check if there is a .sim file
+        if not os.path.isfile(inf[:-4]+'.sim'):
+            # Make a .sim file if necessary
+            subprocess.call(['ext4mag',inf])
+        # Change input to the .sim file
+        inf=inf[:-4]+'.sim'
+        # Reset everything
+        os.chdir(tmp)
+
+    # Get list of inputs/outputs
+    inouts=set()
+    with open(inf,'r') as f:
+        for l in f:
+    # Assume that all inputs/outputs will be connected to FETs
+            if l[0] in ['p','n']:
+                l=_intsplit(l)
+                for x in l:
+                    if isinstance(x,str):
+                    # Weed out virtual nets
+                        if x[-1]!='#' and x not in ['p','n']:
+                            inouts.add(x)
+    # Remove Vdd / GND
+    toRemove=[]
+    for x in inouts:
+        if x.lower() in ['vdd','gnd']:
+            toRemove.append(x)
+    for x in toRemove:
+        inouts.remove(x)
+
+    # Ask the user to distinguish ins from outs
+    # We can probably do this automatically, based on the transistors
+    # On the to-do list
+    print('\nThe .sim file contains the following inputs/outputs:')
+    print(*inouts,sep=' ')
+    while(True):
+        outs=raw_input('Please tell me which of them are actually outputs. Separate with spaces.\n')
+        outs=_intsplit(outs)
+        for x in outs:
+            if x not in inouts:
+                print('You had typos. Here is the list again.')
+                print(*inouts,sep=' ')
+                continue
+        break
+
+    # Split off inputs
+    ins=[]
+    for x in inouts:
+        if x not in outs:
+            ins.append(x)
+
+    with open('.tmp.cmd','w') as f:
+        print('stepsize 50',file=f)
+        print('analyzer',*inouts,sep=' ',file=f)
+        print('vector','ins',*ins,sep=' ',file=f)
+        for x in range(2**len(ins)):
+            print('setvector','in',bin(x)[2:],sep=' ',file=f)
+            print('s',file=f)
+        print('simtime left [simtime begin]',file=f)
+        print('simtime right [simtime end]',file=f)
+        simfile=os.path.join(HOMEDIR,'output',inf[:-4]+'_sim.ps')
+        print('print','file',simfile,sep=' ',file=f)
+#        print('exit',end='',file=f)
+
+    # Call irsim
+    subprocess.call(['irsim','/classes/ecen4303F18/scmos30.prm',inf,'-.tmp.cmd'])
+
+    # Clean up .tmp.cmd
+    subprocess.call(['rm','.tmp.cmd'])
+
 if __name__ == '__main__':
     processArgs()
+    findHome()
     if not NOUPDATE:
         update()
     if FLIP:
@@ -334,3 +509,5 @@ if __name__ == '__main__':
         stretch()
     if ANALYZE:
         analyze()
+    if IRSIM:
+        irsim()
