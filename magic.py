@@ -126,8 +126,8 @@ def processArgs():
             print('-nostretchcontact\tOptional argument to be used with the -stretch script.')
             print('\t\t\tKeeps diffusion contacts the same size, and does not stretch them.')
             print('\t\t\tNot really supported; this argument has a high chance of producing errors.\n')
-            print('-analyze\t\tRuns analyze.sh on all subdirectories.\n')
-            print('\t\t\t-justThis\tOnly runs analyze.sh on the input file.\n')
+            print('-analyze\t\tRuns analyze.sh on a given design.\n')
+            print('-analyzeAll\tOnly runs analyze.sh on the input file.\n')
             print('-irsim\t\t\tPerforms and prints an IRSIM analysis.')
             print('-help\t\t\tPrints this page.')
             sys.exit(0)
@@ -136,10 +136,11 @@ def processArgs():
 
         if b=='-analyze':
             ANALYZE=True
-        if b=='-justThis' and ANALYZE:
             JUSTTHIS=True
             if not reqinputs:
                 reqinputs=1
+        if b=='-analyzeAll':
+            ANALYZE=True
 
         if b=='-irsim':
             IRSIM=True
@@ -167,31 +168,36 @@ def processArgs():
         if b=='-nostretchcontact':
             NOSTRCON=True
 
+        def _validFile(x,rec=True):
+            for a in [x,os.path.join(HOMEDIR,x),os.path.join(HOMEDIR,x,'magic',x)]:
+                if os.path.isfile(a):
+                    return a
+                if os.path.isfile(a+'.mag'):
+                    return a+'.mag'
+            return None
+
         if reqinputs==2 and a>len(sys.argv)-3:
-            tmp=None
             x=2-(len(sys.argv)-a)
-            if((os.path.isfile(b) or x)):
-                tmp=b
-            elif(os.path.isfile(b+'.mag') or x):
-                tmp=b+'.mag'
-            if(x):
-                tmp=b
-            if('.' not in b and x):
-                tmp=b+'.mag'
-            if not tmp:
-                print('The last two arguments must be valid file names.')
+            if not x:
+                tmp=_validFile(b)
+            else:
+                b_=os.path.abspath(b)
+                if SCRIPTDIR not in b_ and HOMEDIR not in b_:
+                    print("I don't want to let you scatter output files in random places.")
+                    sys.exit(1)
+            if not x and not tmp:
+                print('The last two arguments must be input and output files.')
                 sys.exit(1)
             if x:
-                OUTFILE=os.path.abspath(tmp)
+                OUTFILE=os.path.abspath(b)
             else:
                 INFILE=os.path.abspath(tmp)
+
         if reqinputs==1 and a>len(sys.argv)-2:
-            tmp=b
-            if(not os.path.isfile(tmp)):
-                tmp=b+'.mag'
-                if(not os.path.isfile(tmp)):
-                    print('The last argument must be a valid file name.')
-                    sys.exit(1)
+            tmp=_validFile(b)
+            if(not tmp):
+	         print('The last argument must be a valid file name.')
+	         sys.exit(1)
             INFILE=os.path.abspath(tmp)
 
 def findHome():
@@ -251,11 +257,10 @@ def findHome():
 
 
 def update():
-    flag=False
     server=None; cliver=None;
 
     try:
-        server=subprocess.Popen(["wget","--no-cache","-qO","-",RAWGITURL+"version.txt"],stdout=subprocess.PIPE).communicate()[0]
+        server=subprocess.Popen(["wget","-qO","-",RAWGITURL+"version.txt"],stdout=subprocess.PIPE).communicate()[0]
     except:
         print("\"Distribution server\" is offline.")
         return
@@ -265,13 +270,13 @@ def update():
     except:
         print("Cannot find local version number.\n")
         cliver=1
-    if server and cliver and server!=cliver:
+    if server!=None and cliver!="0\n" and server!=cliver:
         print("Updating script.\n")
-        subprocess.call(["wget","--no-cache",RAWGITURL+"magic.py","-O",os.path.join(SCRIPTDIR,"magic.py")])
+        subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.join(SCRIPTDIR,"magic.py")])
         subprocess.call(["chmod","u+x","magic.py"])
-        subprocess.call(["wget","--no-cache",RAWGITURL+"analyze.sh","-O",os.path.join(SCRIPTDIR,"analyze.sh")])
+        subprocess.call(["wget",RAWGITURL+"analyze.sh","-O",os.path.join(SCRIPTDIR,"analyze.sh")])
         subprocess.call(["chmod","u+x","analyze.sh"])
-        subprocess.call(["wget","--no-cache",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
+        subprocess.call(["wget",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
         print("Restarting script.\n")
         os.execl(sys.executable,sys.executable,*sys.argv)
         sys.exit(0)
@@ -504,8 +509,8 @@ def irsim():
     subprocess.call(['rm','.tmp.cmd'])
 
 if __name__ == '__main__':
-    processArgs()
     findHome()
+    processArgs()
     if not NOUPDATE:
         update()
     if FLIP:
