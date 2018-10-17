@@ -255,7 +255,7 @@ def update():
     server=None; cliver=None;
 
     try:
-        server=subprocess.Popen(["wget","--nocache","-qO","-",RAWGITURL+"version.txt"],stdout=subprocess.PIPE).communicate()[0]
+        server=subprocess.Popen(["wget","--no-cache","-qO","-",RAWGITURL+"version.txt"],stdout=subprocess.PIPE).communicate()[0]
     except:
         print("\"Distribution server\" is offline.")
         return
@@ -267,11 +267,11 @@ def update():
         cliver=1
     if server and cliver and server!=cliver:
         print("Updating script.\n")
-        subprocess.call(["wget","--nocache",RAWGITURL+"magic.py","-O",os.path.join(SCRIPTDIR,"magic.py")])
+        subprocess.call(["wget","--no-cache",RAWGITURL+"magic.py","-O",os.path.join(SCRIPTDIR,"magic.py")])
         subprocess.call(["chmod","u+x","magic.py"])
-        subprocess.call(["wget","--nocache",RAWGITURL+"analyze.sh","-O",os.path.join(SCRIPTDIR,"analyze.sh")])
+        subprocess.call(["wget","--no-cache",RAWGITURL+"analyze.sh","-O",os.path.join(SCRIPTDIR,"analyze.sh")])
         subprocess.call(["chmod","u+x","analyze.sh"])
-        subprocess.call(["wget","--nocache",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
+        subprocess.call(["wget","--no-cache",RAWGITURL+"version.txt","-O",os.path.expanduser("~/.teo")])
         print("Restarting script.\n")
         os.execl(sys.executable,sys.executable,*sys.argv)
         sys.exit(0)
