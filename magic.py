@@ -197,9 +197,9 @@ def findHome():
     # Check if a dir is "HOMEDIR"
     def isHome(d):
         # Get all subdirectories
-        getSubdirs(d)
+        subds=getSubdirs(d)
         # Get all subdirectories of subdirectories
-        for x in getSubdirs(os.path.join(d,d[0])):
+        for x in getSubdirs(os.path.join(d,subds[0])):
             # If one of them is 'magic' or 'sue', we're golden
             if x in ['magic','lvs','sue']:
                 return True
@@ -261,6 +261,7 @@ def update():
     except:
         print("Cannot find local version number.\n")
         cliver=1
+
     if server and cliver and server!=cliver:
         print("Updating script.\n")
         subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.join(SCRIPTDIR,"magic.py")])
@@ -399,7 +400,6 @@ def stretch():
         dic['restrictedArea'].append(copy.deepcopy(a))
     del dic['restrictedArea']
     writeMagic(OUTFILE,dic)
-    global INFILE; INFILE=OUTFILE
 
 def analyze():
     os.chdir(SCRIPTDIR)
@@ -484,13 +484,16 @@ def irsim():
         print('analyzer',*inouts,sep=' ',file=f)
         print('vector','ins',*ins,sep=' ',file=f)
         for x in range(2**len(ins)):
-            print('setvector','in',bin(x)[2:],sep=' ',file=f)
+            b=bin(x)[2:]
+            b='0'*(len(ins)-len(b))+b
+            print('setvector','ins',b,sep=' ',file=f)
             print('s',file=f)
         print('simtime left [simtime begin]',file=f)
         print('simtime right [simtime end]',file=f)
-        simfile=os.path.join(HOMEDIR,'output',inf[:-4]+'_sim.ps')
+        simfile=os.path.basename(inf[:-4])+'_sim.ps'
+        simfile=os.path.join(HOMEDIR,'output',simfile)
         print('print','file',simfile,sep=' ',file=f)
-#        print('exit',end='',file=f)
+        print('exit',end='',file=f)
 
     # Call irsim
     subprocess.call(['irsim','/classes/ecen4303F18/scmos30.prm',inf,'-.tmp.cmd'])
