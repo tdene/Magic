@@ -106,10 +106,11 @@ def _stretch(dic,line,dr,dl,le,lcont=[]):
                 b[dr][1]+=f(dr,dl)
 
 def processArgs():
-    global NOUPDATE, NOWELL, NOSTRCON, STRETCH, FLIP, INFILE, OUTFILE, ANALYZE, IRSIM, JUSTTHIS
+    global NOUPDATE, NOWELL, NOSTRCON, STRETCH, FLIP, INFILE, OUTFILE, ANALYZE, IRSIM, JUSTTHIS, reqinputs
     reqinputs=0
     for a in range(len(sys.argv)):
         b=sys.argv[a]
+
         if a==0:
             continue
         if a==1 and b in ['-h','-help','h','help']:
@@ -132,6 +133,19 @@ def processArgs():
             sys.exit(0)
         if b=='--noupdate':
             NOUPDATE=True
+
+        if b=='-analyze':
+            ANALYZE=True
+        if b=='-justThis' and ANALYZE:
+            JUSTTHIS=True
+            if not reqinputs:
+                reqinputs=1
+
+        if b=='-irsim':
+            IRSIM=True
+            if not reqinputs:
+            	reqinputs=1
+
         if b=='-flip':
             FLIP=True
             reqinputs=2
@@ -152,16 +166,6 @@ def processArgs():
             reqinputs=2
         if b=='-nostretchcontact':
             NOSTRCON=True
-
-        if b=='-analyze':
-            ANALYZE=True
-        if b=='-justThis' and ANALYZE:
-            if not reqinputs:
-                reqinputs=1
-
-        if b=='-irsim':
-            IRSIM=True
-            reqinputs=1
 
         if reqinputs==2 and a>len(sys.argv)-3:
             tmp=None
@@ -197,9 +201,9 @@ def findHome():
     # Check if a dir is "HOMEDIR"
     def isHome(d):
         # Get all subdirectories
-        subds=getSubdirs(d)
+        dirs=getSubdirs(d)
         # Get all subdirectories of subdirectories
-        for x in getSubdirs(os.path.join(d,subds[0])):
+        for x in getSubdirs(os.path.join(d,dirs[0])):
             # If one of them is 'magic' or 'sue', we're golden
             if x in ['magic','lvs','sue']:
                 return True
@@ -261,7 +265,6 @@ def update():
     except:
         print("Cannot find local version number.\n")
         cliver=1
-
     if server and cliver and server!=cliver:
         print("Updating script.\n")
         subprocess.call(["wget",RAWGITURL+"magic.py","-O",os.path.join(SCRIPTDIR,"magic.py")])
@@ -407,9 +410,9 @@ def analyze():
                     if os.path.isdir(os.path.join(SCRIPTDIR,x))]
     if JUSTTHIS:
         if OUTFILE:
-            subdirs=[OUTFILE]
+            subdirs=[os.path.basename(OUTFILE)]
         elif INFILE:
-            subdirs=[INFILE]
+            subdirs=[os.path.basename(INFILE)]
         else:
             print('This error should be unreachable')
             sys.exit(1)
@@ -417,7 +420,7 @@ def analyze():
             subdirs[0]=subdirs[0][:-4]
     for x in subdirs:
         if x not in ['output','calibre']:
-            subprocess.call([os.path.join(codepath,'analyze.sh'),x])
+            subprocess.call([os.path.join(SCRIPTDIR,'analyze.sh'),x])
 
 def irsim():
     # Copy the global INFILE

@@ -30,11 +30,11 @@ printf "*cmnFDIUseLayerMap: 1">>runset.calibre.lvs
 ./run_calibre.sh
 
 cd ..
-if grep -Fxq -f ../correct ./lvs/$1.lvs.report
+if [ -e ./lvs/$1.lvs.report ] && !(grep -Fq INCORRECT ./lvs/$1.lvs.report)
 then printf "\nSimulation results CORRECT!\n"
 else
-	printf "\nERROR in LVS!\n"
-	exit 0
+    printf "\nERROR in LVS!\n"
+    exit 0
 fi
 
 if [ ! -d "../output" ]
