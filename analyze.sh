@@ -6,31 +6,31 @@ echo "no" | ext4mag $1.mag
 cd ../sue
 echo "set NETLIST(no_header) 1" > .suerc
 sue $1.sue -CMD netlist -CMD exit -ICONIFY 1
-cd ../lvs
-printf "*lvsRulesFile: /classes/ecen4303F18/calibre/calibreLVS_scn3me_subm.rul\n">runset.calibre.lvs
-printf "*lvsRunDir: .\n">>runset.calibre.lvs
-printf "*lvsLayoutPaths: ../magic/%s.gds\n" $1>>runset.calibre.lvs
-printf "*lvsLayoutPrimary: %s\n" $1>>runset.calibre.lvs
-printf "*lvsSourcePath: ../sue/%s.sp\n" $1>>runset.calibre.lvs
-printf "*lvsSourcePrimary: %s\n" $1>>runset.calibre.lvs
-printf "*lvsSourceSystem: SPICE\n">>runset.calibre.lvs
-printf "*lvsSpiceFile: extracted.sp\n">>runset.calibre.lvs
-printf "*lvsPowerNames: vdd\n">>runset.calibre.lvs
-printf "*lvsGroundNames: gnd\n">>runset.calibre.lvs
-printf "*lvsIgnorePorts: 1\n">>runset.calibre.lvs
-printf "*lvsERCDatabase: %s.erc.db\n" $1>>runset.calibre.lvs
-printf "*lvsERCSummaryFile: %s.erc.summary\n" $1>>runset.calibre.lvs
-printf "*lvsReportFile: %s.lvs.report\n" $1>>runset.calibre.lvs
-printf "*lvsMaskDBFile: %s.maskdb\n" $1>>runset.calibre.lvs
-printf "*cmnShowOptions: 1\n">>runset.calibre.lvs
-printf "*Cmnvconnectnames: VDD GND\n">>runset.calibre.lvs
-printf "*cmnVConnectNamesState: ALL\n">>runset.calibre.lvs
-printf "*cmnFDILayerMapFile: /classes/ecen4303F18/calibre/layer.map\n">>runset.calibre.lvs
-printf "*cmnFDIUseLayerMap: 1">>runset.calibre.lvs
+cd ../calibre
+printf "*calibreRulesFile: /classes/ecen4303F18/calibre/calibreLVS_scn3me_subm.rul\n">runset.calibre.calibre
+printf "*calibreRunDir: .\n">>runset.calibre.calibre
+printf "*calibreLayoutPaths: ../magic/%s.gds\n" $1>>runset.calibre.calibre
+printf "*calibreLayoutPrimary: %s\n" $1>>runset.calibre.calibre
+printf "*calibreSourcePath: ../sue/%s.sp\n" $1>>runset.calibre.calibre
+printf "*calibreSourcePrimary: %s\n" $1>>runset.calibre.calibre
+printf "*calibreSourceSystem: SPICE\n">>runset.calibre.calibre
+printf "*calibreSpiceFile: extracted.sp\n">>runset.calibre.calibre
+printf "*calibrePowerNames: vdd\n">>runset.calibre.calibre
+printf "*calibreGroundNames: gnd\n">>runset.calibre.calibre
+printf "*calibreIgnorePorts: 1\n">>runset.calibre.calibre
+printf "*calibreERCDatabase: %s.erc.db\n" $1>>runset.calibre.calibre
+printf "*calibreERCSummaryFile: %s.erc.summary\n" $1>>runset.calibre.calibre
+printf "*calibreReportFile: %s.calibre.report\n" $1>>runset.calibre.calibre
+printf "*calibreMaskDBFile: %s.maskdb\n" $1>>runset.calibre.calibre
+printf "*cmnShowOptions: 1\n">>runset.calibre.calibre
+printf "*Cmnvconnectnames: VDD GND\n">>runset.calibre.calibre
+printf "*cmnVConnectNamesState: ALL\n">>runset.calibre.calibre
+printf "*cmnFDILayerMapFile: /classes/ecen4303F18/calibre/layer.map\n">>runset.calibre.calibre
+printf "*cmnFDIUseLayerMap: 1">>runset.calibre.calibre
 ./run_calibre.sh
 
 cd ..
-if [ -e ./lvs/$1.lvs.report ] && !(grep -Fq INCORRECT ./lvs/$1.lvs.report)
+if [ -e ./calibre/$1.calibre.report ] && !(grep -Fq INCORRECT ./calibre/$1.calibre.report)
 then printf "\nSimulation results CORRECT!\n"
 else
     printf "\nERROR in LVS!\n"
@@ -42,6 +42,6 @@ then mkdir ../output
 fi
 
 cd ../output
-cp ../$1/lvs/$1.lvs.report .
+cp ../$1/calibre/$1.calibre.report .
 echo "y" | pplot -k $1.ps -l allText -d 10 ../$1/magic/$1.cif
 printf "\n"
