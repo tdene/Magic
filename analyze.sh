@@ -20,7 +20,7 @@ printf "*calibreGroundNames: gnd\n">>runset.calibre.calibre
 printf "*calibreIgnorePorts: 1\n">>runset.calibre.calibre
 printf "*calibreERCDatabase: %s.erc.db\n" $1>>runset.calibre.calibre
 printf "*calibreERCSummaryFile: %s.erc.summary\n" $1>>runset.calibre.calibre
-printf "*calibreReportFile: %s.calibre.report\n" $1>>runset.calibre.calibre
+printf "*calibreReportFile: %s.lvs.report\n" $1>>runset.calibre.calibre
 printf "*calibreMaskDBFile: %s.maskdb\n" $1>>runset.calibre.calibre
 printf "*cmnShowOptions: 1\n">>runset.calibre.calibre
 printf "*Cmnvconnectnames: VDD GND\n">>runset.calibre.calibre
@@ -30,7 +30,7 @@ printf "*cmnFDIUseLayerMap: 1">>runset.calibre.calibre
 ./run_calibre.sh
 
 cd ..
-if [ -e ./calibre/$1.calibre.report ] && !(grep -Fq INCORRECT ./calibre/$1.calibre.report)
+if [ -e ./calibre/$1.lvs.report ] && !(grep -Fq INCORRECT ./calibre/$1.lvs.report)
 then printf "\nSimulation results CORRECT!\n"
 else
     printf "\nERROR in LVS!\n"
@@ -42,6 +42,6 @@ then mkdir ../output
 fi
 
 cd ../output
-cp ../$1/calibre/$1.calibre.report .
+cp ../$1/calibre/$1.lvs.report .
 echo "y" | pplot -k $1.ps -l allText -d 10 ../$1/magic/$1.cif
 printf "\n"
