@@ -7,21 +7,21 @@ cd ../sue
 echo "set NETLIST(no_header) 1" > .suerc
 sue $1.sue -CMD netlist -CMD exit -ICONIFY 1
 cd ../calibre
-printf "*calibreRulesFile: /classes/ecen4303F18/calibre/calibreLVS_scn3me_subm.rul\n">runset.calibre.lvs
-printf "*calibreRunDir: .\n">>runset.calibre.lvs
-printf "*calibreLayoutPaths: ../magic/%s.gds\n" $1>>runset.calibre.lvs
-printf "*calibreLayoutPrimary: %s\n" $1>>runset.calibre.lvs
-printf "*calibreSourcePath: ../sue/%s.sp\n" $1>>runset.calibre.lvs
-printf "*calibreSourcePrimary: %s\n" $1>>runset.calibre.lvs
-printf "*calibreSourceSystem: SPICE\n">>runset.calibre.lvs
-printf "*calibreSpiceFile: extracted.sp\n">>runset.calibre.lvs
-printf "*calibrePowerNames: vdd\n">>runset.calibre.lvs
-printf "*calibreGroundNames: gnd\n">>runset.calibre.lvs
-printf "*calibreIgnorePorts: 1\n">>runset.calibre.lvs
-printf "*calibreERCDatabase: %s.erc.db\n" $1>>runset.calibre.lvs
-printf "*calibreERCSummaryFile: %s.erc.summary\n" $1>>runset.calibre.lvs
-printf "*calibreReportFile: %s.lvs.report\n" $1>>runset.calibre.lvs
-printf "*calibreMaskDBFile: %s.maskdb\n" $1>>runset.calibre.lvs
+printf "*lvsRulesFile: /classes/ecen4303F18/calibre/calibreLVS_scn3me_subm.rul\n">runset.calibre.lvs
+printf "*lvsRunDir: .\n">>runset.calibre.lvs
+printf "*lvsLayoutPaths: ../magic/%s.gds\n" $1>>runset.calibre.lvs
+printf "*lvsLayoutPrimary: %s\n" $1>>runset.calibre.lvs
+printf "*lvsSourcePath: ../sue/%s.sp\n" $1>>runset.calibre.lvs
+printf "*lvsSourcePrimary: %s\n" $1>>runset.calibre.lvs
+printf "*lvsSourceSystem: SPICE\n">>runset.calibre.lvs
+printf "*lvsSpiceFile: extracted.sp\n">>runset.calibre.lvs
+printf "*lvsPowerNames: vdd\n">>runset.calibre.lvs
+printf "*lvsGroundNames: gnd\n">>runset.calibre.lvs
+printf "*lvsIgnorePorts: 1\n">>runset.calibre.lvs
+printf "*lvsERCDatabase: %s.erc.db\n" $1>>runset.calibre.lvs
+printf "*lvsERCSummaryFile: %s.erc.summary\n" $1>>runset.calibre.lvs
+printf "*lvsReportFile: %s.lvs.report\n" $1>>runset.calibre.lvs
+printf "*lvsMaskDBFile: %s.maskdb\n" $1>>runset.calibre.lvs
 printf "*cmnShowOptions: 1\n">>runset.calibre.lvs
 printf "*Cmnvconnectnames: VDD GND\n">>runset.calibre.lvs
 printf "*cmnVConnectNamesState: ALL\n">>runset.calibre.lvs
