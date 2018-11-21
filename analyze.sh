@@ -7,26 +7,26 @@ cd ../sue
 echo "set NETLIST(no_header) 1" > .suerc
 sue $1.sue -CMD netlist -CMD exit -ICONIFY 1
 cd ../calibre
-printf "*calibreRulesFile: /classes/ecen4303F18/calibre/calibreLVS_scn3me_subm.rul\n">runset.calibre.calibre
-printf "*calibreRunDir: .\n">>runset.calibre.calibre
-printf "*calibreLayoutPaths: ../magic/%s.gds\n" $1>>runset.calibre.calibre
-printf "*calibreLayoutPrimary: %s\n" $1>>runset.calibre.calibre
-printf "*calibreSourcePath: ../sue/%s.sp\n" $1>>runset.calibre.calibre
-printf "*calibreSourcePrimary: %s\n" $1>>runset.calibre.calibre
-printf "*calibreSourceSystem: SPICE\n">>runset.calibre.calibre
-printf "*calibreSpiceFile: extracted.sp\n">>runset.calibre.calibre
-printf "*calibrePowerNames: vdd\n">>runset.calibre.calibre
-printf "*calibreGroundNames: gnd\n">>runset.calibre.calibre
-printf "*calibreIgnorePorts: 1\n">>runset.calibre.calibre
-printf "*calibreERCDatabase: %s.erc.db\n" $1>>runset.calibre.calibre
-printf "*calibreERCSummaryFile: %s.erc.summary\n" $1>>runset.calibre.calibre
-printf "*calibreReportFile: %s.lvs.report\n" $1>>runset.calibre.calibre
-printf "*calibreMaskDBFile: %s.maskdb\n" $1>>runset.calibre.calibre
-printf "*cmnShowOptions: 1\n">>runset.calibre.calibre
-printf "*Cmnvconnectnames: VDD GND\n">>runset.calibre.calibre
-printf "*cmnVConnectNamesState: ALL\n">>runset.calibre.calibre
-printf "*cmnFDILayerMapFile: /classes/ecen4303F18/calibre/layer.map\n">>runset.calibre.calibre
-printf "*cmnFDIUseLayerMap: 1">>runset.calibre.calibre
+printf "*calibreRulesFile: /classes/ecen4303F18/calibre/calibreLVS_scn3me_subm.rul\n">runset.calibre.lvs
+printf "*calibreRunDir: .\n">>runset.calibre.lvs
+printf "*calibreLayoutPaths: ../magic/%s.gds\n" $1>>runset.calibre.lvs
+printf "*calibreLayoutPrimary: %s\n" $1>>runset.calibre.lvs
+printf "*calibreSourcePath: ../sue/%s.sp\n" $1>>runset.calibre.lvs
+printf "*calibreSourcePrimary: %s\n" $1>>runset.calibre.lvs
+printf "*calibreSourceSystem: SPICE\n">>runset.calibre.lvs
+printf "*calibreSpiceFile: extracted.sp\n">>runset.calibre.lvs
+printf "*calibrePowerNames: vdd\n">>runset.calibre.lvs
+printf "*calibreGroundNames: gnd\n">>runset.calibre.lvs
+printf "*calibreIgnorePorts: 1\n">>runset.calibre.lvs
+printf "*calibreERCDatabase: %s.erc.db\n" $1>>runset.calibre.lvs
+printf "*calibreERCSummaryFile: %s.erc.summary\n" $1>>runset.calibre.lvs
+printf "*calibreReportFile: %s.lvs.report\n" $1>>runset.calibre.lvs
+printf "*calibreMaskDBFile: %s.maskdb\n" $1>>runset.calibre.lvs
+printf "*cmnShowOptions: 1\n">>runset.calibre.lvs
+printf "*Cmnvconnectnames: VDD GND\n">>runset.calibre.lvs
+printf "*cmnVConnectNamesState: ALL\n">>runset.calibre.lvs
+printf "*cmnFDILayerMapFile: /classes/ecen4303F18/calibre/layer.map\n">>runset.calibre.lvs
+printf "*cmnFDIUseLayerMap: 1">>runset.calibre.lvs
 ./run_calibre.sh
 
 cd ..
